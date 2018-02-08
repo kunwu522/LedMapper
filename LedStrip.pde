@@ -1,3 +1,36 @@
+
+static float LED_WIDTH = 10;
+
+int totalStripsNum = 0;
+
+void setupStrip() {
+  float interval = SCREEN_WIDTH / (totalStripsNum + 1);
+  int stripsOffset = 0;
+  for (Teensy teensy : teensys) {
+    for (LedStrip strip : teensy.ledStrips) {
+      if (stripsOffset == 0) {
+        strip.corner = new PVector(interval - LED_WIDTH / 2, 0.0);
+        strip.width = LED_WIDTH;
+        strip.height = SCREEN_HEIGHT;
+      } else {
+        strip.corner = new PVector(interval * (stripsOffset + 1) - (LED_WIDTH / 2), 0.0);
+        strip.width = LED_WIDTH;
+        strip.height = SCREEN_HEIGHT;
+      }
+      stripsOffset++;
+    }
+  }
+}
+
+void drawStrips() {
+  for (Teensy teensy : teensys) {
+    for (LedStrip strip : teensy.ledStrips) {
+      strip.drawStrip(canvas);
+    }
+  }
+}
+
+
 class LedStrip {
   int id;
   int ledNum;
@@ -6,6 +39,9 @@ class LedStrip {
   float height;
   
   boolean isHorizontal;
+  
+  color c;
+  int brightness;
   
   public LedStrip(int id, int ledNum) {
     this.id = id;
@@ -24,7 +60,7 @@ class LedStrip {
   public void drawStrip(PGraphics canvas) {
     canvas.noFill();
     canvas.stroke(0, 0, 255);
-    //canvas.strokeWeight(1);
+    canvas.strokeWeight(1);
     canvas.rect(corner.x, corner.y, width, height);
     if (isHorizontal) {
       float spacing = width / ledNum;
@@ -40,7 +76,7 @@ class LedStrip {
   }
   
   //color lastColor = color(0);
-  public color updateStrip(PImage image) {
+  public void update(PImage image) {
     color brightest = color(0);
     for (int i = int(corner.x); i < corner.x + width; i++) {
       int index = i + 10 * 512;
@@ -55,7 +91,8 @@ class LedStrip {
         brightest = c;
       }
     }
-    return brightest;
+    c = brightest;
+    brightness = brightest & 0xFF;
   }
   
   private boolean isEqualColorWithThreshold(color c1, color c2) {

@@ -19,20 +19,25 @@ List<LedStrip> strips = new ArrayList<LedStrip>();
 void setup() {
   size(512, 424, P3D);
   canvas = createGraphics(512, 424, P3D);
-  setupStrips();
   setupTeensy();
+  setupStrip();
   //syphonServer = new SyphonServer(this, "Body Movement Simulation");
   //frameRate(10);
 }
 
 void draw() {
-  //canvas.beginDraw();
-  //canvas.background(0);
-  //drawStrips();
-  //drawCursor();
-  //canvas.endDraw();
+  canvas.beginDraw();
+  canvas.background(0);
+  drawStrips();
+  drawCursor();
+  canvas.endDraw();
   
-  //image(canvas, 0, 0);
+  image(canvas, 0, 0);
+  
+  PImage display = get();
+  for (Teensy teensy : teensys) {
+    teensy.send(display);
+  }
   
   ////strips.get(0).updateStrip(get());
   //PImage display = get();
@@ -61,26 +66,6 @@ void draw() {
   //}
   //printArray(out.toByteArray());
   //noLoop();
-}
-
-static float LED_WIDTH = 10;
-void setupStrips() {
-  float interval = SCREEN_WIDTH / (STRIPS_NUM + 1);
-  for (int i = 0; i < STRIPS_NUM; i++) {
-    LedStrip strip;
-    if (i == 0) {
-      strip = new LedStrip(i, LEDS_NUM, new PVector(interval - LED_WIDTH / 2, float(0)), LED_WIDTH, SCREEN_HEIGHT);
-    } else {
-      strip = new LedStrip(i, LEDS_NUM, new PVector(interval * (i + 1) - (LED_WIDTH / 2), 0.0), LED_WIDTH, SCREEN_HEIGHT);
-    }
-    strips.add(strip);
-  }
-}
-
-void drawStrips() {
-  for (LedStrip strip : strips) {
-    strip.drawStrip(canvas);
-  }
 }
 
 void drawCursor() {
