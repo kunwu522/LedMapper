@@ -70,7 +70,7 @@ class Teensy {
     int dataSize =1;
     for (LedStrip strip : ledStrips) {
       dataSize++; // For Led Strip brightness
-      dataSize += strip.ledNum * 3;
+      dataSize += 3;
     }
     data = new byte[dataSize];
     
@@ -85,10 +85,10 @@ class Teensy {
     update(image);
     data[0] = '*';
     port.write(data);
-    
-    delay(50);
+    //print(data[9] + data[10] + data[11] + data[12]);
+    //delay(50);
     //String line = port.readStringUntil(10);
-    //println("Response: " + line);
+    println("Response: " + bytesToHex(data));
   }
   
   void update(PImage image) {
@@ -100,5 +100,16 @@ class Teensy {
       data[offset++] = (byte)(strip.c >> 8 & 0xFF);
       data[offset++] = (byte)(strip.c & 0xFF);
     }
+  }
+  
+  private final  char[] hexArray = "0123456789ABCDEF".toCharArray();
+  public String bytesToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for ( int j = 0; j < bytes.length; j++ ) {
+        int v = bytes[j] & 0xFF;
+        hexChars[j * 2] = hexArray[v >>> 4];
+        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
   }
 }
