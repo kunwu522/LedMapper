@@ -5,12 +5,13 @@ Teensy[] teensys = new Teensy[1];
 void setupTeensy() {
   println("Start to setup teensy...");
   String[] list = Serial.list();
-  delay(20);
+  delay(50);
   println("Serial Ports List:");
   printArray(list);
   println();
   
-  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3071001");
+  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem3071001");
+  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3654571");
   
   for (Teensy teensy : teensys) {
     totalStripsNum += teensy.ledStrips.size();
@@ -24,6 +25,7 @@ class Teensy {
   Serial port;
   String portName;
   List<LedStrip> ledStrips;
+  SendDataThread thread;
   
   
   Teensy(PApplet parent, String name) {
@@ -40,7 +42,7 @@ class Teensy {
       exit();
     }
     
-    delay(20);
+    delay(100);
     String line = port.readStringUntil(10);
     if (line == null) {
       println("Error, Serial port " + portName + " is not responding");
@@ -74,6 +76,9 @@ class Teensy {
     }
     data = new byte[dataSize];
     
+    thread = new SendDataThread(port);
+    thread.start();
+    
     print("Info, Found " + ledStrips.size() + " strips, with " + ((LedStrip)ledStrips.get(0)).ledNum + " Leds. ");
     println("Totle byte size is " + dataSize + ".");
     
@@ -84,11 +89,12 @@ class Teensy {
   void send(PImage image) {
     update(image);
     data[0] = '*';
-    port.write(data);
+    thread.send(data);
+    //port.write(data);
     //print(data[9] + data[10] + data[11] + data[12]);
     //delay(50);
     //String line = port.readStringUntil(10);
-    println("Response: " + bytesToHex(data));
+    //println("Response: " + bytesToHex(data));
   }
   
   void update(PImage image) {
@@ -99,6 +105,56 @@ class Teensy {
       data[offset++] = (byte)(strip.c >> 16 & 0xFF);
       data[offset++] = (byte)(strip.c >> 8 & 0xFF);
       data[offset++] = (byte)(strip.c & 0xFF);
+    }
+  }
+}
+
+class SendDataThread extends Thread {
+  Serial  port;
+  int send_time;
+  boolean running;
+  boolean sendData;
+  byte[] data;
+
+  SendDataThread(Serial port) {
+    this.port = port;
+    //setDaemon(true);
+    //setPriority(3);
+    //println(getPriority());
+    running = false;
+    sendData = false;
+    send_time = 0;
+  }
+
+  void start() {
+    running = true;
+    super.start();
+  }
+
+  synchronized void send(byte[] data) {
+    this.data = data;
+    sendData = true;
+  }
+
+  int getTime() {
+    return send_time;
+  }
+
+  void done() {
+    running = false;
+  }
+
+  void run() {
+    while (running) {
+      if (sendData) {
+        println("Response: " + bytesToHex(data));
+        int stime = millis();
+        sendData = false;
+        port.write(data);  // send data over serial to teensy
+        send_time = millis() - stime;
+      } else {
+        yield();
+      }
     }
   }
   

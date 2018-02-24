@@ -4,8 +4,8 @@ import java.io.*;
 //SyphonServer syphonServer;
 //Serial port;
 
-static int STRIPS_NUM = 8;
-static int LEDS_NUM = 16;
+static int STRIPS_NUM = 5;
+static int LEDS_NUM = 620;
 static int SCREEN_WIDTH = 512;
 static int SCREEN_HEIGHT = 424;
 
@@ -22,7 +22,7 @@ void setup() {
   setupTeensy();
   setupStrip();
   //syphonServer = new SyphonServer(this, "Body Movement Simulation");
-  //frameRate(10);
+  //frameRate(15);
 }
 
 void draw() {
