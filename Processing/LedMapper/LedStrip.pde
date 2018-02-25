@@ -62,17 +62,17 @@ class LedStrip {
     canvas.stroke(0, 0, 255);
     canvas.strokeWeight(1);
     canvas.rect(corner.x, corner.y, width, height);
-    if (isHorizontal) {
-      float spacing = width / ledNum;
-      for (int i = 1; i < ledNum; i++) {
-        canvas.line(corner.x + i * spacing, corner.y, corner.x + i * spacing, corner.y + height);
-      }
-    } else {
-      float spacing = height / ledNum;
-      for (int i = 1; i < ledNum; i++) {
-        canvas.line(corner.x, corner.y + i * spacing, corner.x + width, corner.y + i * spacing);
-      }
-    }
+    //if (isHorizontal) {
+    //  float spacing = width / ledNum;
+    //  for (int i = 1; i < ledNum; i++) {
+    //    canvas.line(corner.x + i * spacing, corner.y, corner.x + i * spacing, corner.y + height);
+    //  }
+    //} else {
+    //  float spacing = height / ledNum;
+    //  for (int i = 1; i < ledNum; i++) {
+    //    canvas.line(corner.x, corner.y + i * spacing, corner.x + width, corner.y + i * spacing);
+    //  }
+    //}
   }
   
   //color lastColor = color(0);
