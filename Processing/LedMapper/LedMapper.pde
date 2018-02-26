@@ -4,10 +4,12 @@ import java.io.*;
 //SyphonServer syphonServer;
 //Serial port;
 
-static int STRIPS_NUM = 5;
-static int LEDS_NUM = 620;
-static int SCREEN_WIDTH = 512;
-static int SCREEN_HEIGHT = 424;
+final int STRIPS_NUM = 5;
+final int LEDS_NUM = 620;
+final int SCREEN_WIDTH = 273;
+final int SCREEN_HEIGHT = 424;
+
+final int MAX_BRIGHTNESS = 128;
 
 float x1;
 float x2;
@@ -17,17 +19,17 @@ PGraphics canvas;
 List<LedStrip> strips = new ArrayList<LedStrip>();
 
 void setup() {
-  size(512, 424, P3D);
-  canvas = createGraphics(512, 424, P3D);
+  size(273, 424, P3D);
+  canvas = createGraphics(SCREEN_WIDTH, 424, P3D);
   setupTeensy();
-  setupStrip();
+  //setupStrip();
   //syphonServer = new SyphonServer(this, "Body Movement Simulation");
   //frameRate(15);
 }
 
 void draw() {
   canvas.beginDraw();
-  canvas.background(0);
+  canvas.background(169,169,169);
   drawStrips();
   drawCursor();
   canvas.endDraw();
@@ -83,4 +85,22 @@ void drawCursor() {
       line(x1 + i, 0, x1 + i, 424);
     }
   }
+}
+
+void mousePressed() {
+  int x = teensys[0].ledStrips[0].offset;
+  println("offset of " + x);
+  
+  println(bytesToHex(teensys[0].data));
+}
+
+final  char[] hexArray = "0123456789ABCDEF".toCharArray();
+public String bytesToHex(byte[] bytes) {
+  char[] hexChars = new char[bytes.length * 2];
+  for ( int j = 0; j < bytes.length; j++ ) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+  }
+  return new String(hexChars);
 }

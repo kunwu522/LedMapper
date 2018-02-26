@@ -4,7 +4,7 @@
 #define LED_HEIGHT 8
 #define LED_LAYOUT 0
 
-const int ledsPerStrip = 16;
+const int ledsPerStrip = 32;
 
 DMAMEM int displayMemory[ledsPerStrip * 6];
 int drawingMemory[ledsPerStrip * 6];
@@ -57,7 +57,32 @@ void loop() {
   } else if (startChar == '@') {
     elapsedUsecSinceLastFrameSync = 0;
   } else if (startChar == '?') {
-    
+    Serial.print(LED_WIDTH);
+    Serial.write(',');
+    Serial.print(LED_HEIGHT);
+    Serial.write(',');
+    Serial.print(LED_LAYOUT);
+    Serial.write(',');
+    Serial.print(0);
+    Serial.write(',');
+    Serial.print(0);
+    Serial.write(',');
+    Serial.print('0');
+    Serial.write(',');
+    Serial.print('0');
+    Serial.write(',');
+    Serial.print('0');
+    Serial.write(',');
+    Serial.print('0');
+    Serial.write(',');
+    Serial.print(0);
+    Serial.write(',');
+    Serial.print(0);
+    Serial.write(',');
+    Serial.print(0);
+    Serial.println();
+  } else {
+    // Discard
   }
 
 }
