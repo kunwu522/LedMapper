@@ -32,14 +32,14 @@
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
 //char data[NUM_STRIPS * (3 + 1)];
-const int bufferSize = (NUM_STRIPS * 3 + 1) * 3;
-char dataQueue[bufferSize];
+const int maxQueueSize = (NUM_STRIPS * 3 + 1) * 3;
+char dataQueue[maxQueueSize];
 int front = -1, rear = -1;
 
 int mode = 0;
 
 void setup() {
-  Serial.setTimeout(50);
+  Serial.setTimeout(100);
 
   #ifdef TEST_MODE
     Serial.begin(115200);
@@ -75,23 +75,33 @@ void setup() {
 }
 
 void loop() {
-  while(Serial.available() > 0 && queueSize() < bufferSize) {
+  while(Serial.available() > 0 && queueSize() < maxQueueSize) {
     enqueue(Serial.read());
   }
 
-  if (queueSize() > 0) {
-    char data[queueSize()];
-    if (bunchDequeue(data, queueSize)) {
-      Serial.write(data);
-      Serial.print('\n');
-    }
-  }
-  
 //  if (dataQueue[0] == '?') {
 //    char startByte;
 //    dequeue(&startByte);
 //    response();
 //  }
+
+  if (queueSize() > 0) {
+//    Serial.print("Queue buffer size: ");
+//    Serial.print(queueSize());
+//    Serial.print("-----");
+    char data;
+    while (dequeue(&data)) {
+      Serial.print(data, HEX);
+    }
+    Serial.print('\n');
+  } else {
+    Serial.print("Front is ");
+    Serial.print(front);
+    Serial.print(", Rear is ");
+    Serial.print(rear);
+    Serial.print('\n');
+  }
+
 //
 //  if (queueSize() > NUM_STRIPS * 3 + 1) {
 //    processQueue();  
@@ -165,20 +175,22 @@ void processQueue() {
  */
 
 void enqueue(char value) {
-  if (rear == bufferSize - 1) {
+  if (rear == maxQueueSize - 1) {
     #ifdef TEST_MODE
       Serial.println("Error: Queue is Full!");
     #endif
     return;
   } else {
-    if (front == -1) front = 0;
+    if (front == -1) {
+      front = 0;
+    }
     rear++;
     dataQueue[rear] = value;
   }
 }
 
 boolean dequeue(char *c) {
-  if (front == rear) {
+  if (front == -1 || rear == -1) {
     #ifdef TEST_MODE
       Serial.println("Error: Queue is empty!");
     #endif
@@ -195,11 +207,11 @@ boolean dequeue(char *c) {
 }
 
 int queueSize() {
-  return rear - front;
+  return rear - front + 1;
 }
 
 boolean bunchDequeue(char *ptr, int size) {
-  if (rear - front > size) {
+  if (rear - front >= size) {
     if (memcpy(ptr, &dataQueue[front], size)) {
       front += size;
       if (front == rear) {
@@ -207,7 +219,14 @@ boolean bunchDequeue(char *ptr, int size) {
         rear = -1;
       }
       return 1;
+    } else {
+      Serial.write("Memcpy failed...");
     }
+  } else {
+    Serial.print("Queue size ");
+    Serial.print(rear - front);
+    Serial.print(", need copy size: ");
+    Serial.print(size);
   }
   return 0;
 }

@@ -3,7 +3,7 @@ import processing.serial.*;
 final int NUM_STRIPS = 8;
 final int NUM_LEDS = 16;
 
-final String portName = "/dev/cu.usbmodem107"; 
+final String portName = "/dev/tty.usbmodem3071001"; 
 Serial port;
 
 void setup() {
@@ -21,15 +21,15 @@ void setup() {
     exit();
     return;
   }
-  port.write('?');
+  //port.write('?');
   
-  delay(100);
-  String line = port.readStringUntil(10);
-  if (line == null) {
-    println("Error, SErial port " + portName + " was not responding.");
-    exit();
-    return;
-  }
+  //delay(100);
+  //String line = port.readStringUntil(10);
+  //if (line == null) {
+  //  println("Error, SErial port " + portName + " was not responding.");
+  //  exit();
+  //  return;
+  //}
 }
 
 void draw() {
@@ -42,18 +42,23 @@ void mousePressed() {
   data[0] = '*';
   int offset = 1;
   for (int i = 0; i < NUM_STRIPS; i++) {
-    if (i == whiteLine) {
+    //if (i == whiteLine) {
       data[offset++] = (byte)(255 & 0xFF);
       data[offset++] = (byte)(255 & 0xFF);
       data[offset++] = (byte)(255 & 0xFF);
-    } else {
-      data[offset++] = (byte)(0 & 0xFF);
-      data[offset++] = (byte)(0 & 0xFF);
-      data[offset++] = (byte)(0 & 0xFF);
-    }
+    //} else {
+    //  data[offset++] = (byte)(0 & 0xFF);
+    //  data[offset++] = (byte)(0 & 0xFF);
+    //  data[offset++] = (byte)(0 & 0xFF);
+    //}
   }
   port.write(data);
-  println("Send data: " + bytesToHex(data));
+  println(bytesToHex(data));
+  
+  delay(100);
+  String response = port.readStringUntil('\n');
+  println(response);
+
   if (whiteLine < 8) {
     whiteLine++;
   } else {
