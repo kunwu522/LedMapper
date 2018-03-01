@@ -4,7 +4,10 @@ final int NUM_STRIPS = 8;
 final int NUM_LEDS = 16;
 
 final String portName = "/dev/tty.usbmodem3071001"; 
+
 Serial port;
+RecieveSerialThread thread;
+
 
 void setup() {
   size(400, 200);
@@ -21,15 +24,9 @@ void setup() {
     exit();
     return;
   }
-  //port.write('?');
   
-  //delay(100);
-  //String line = port.readStringUntil(10);
-  //if (line == null) {
-  //  println("Error, SErial port " + portName + " was not responding.");
-  //  exit();
-  //  return;
-  //}
+  thread = new RecieveSerialThread(port);
+  thread.start();
 }
 
 void draw() {
@@ -42,22 +39,26 @@ void mousePressed() {
   data[0] = '*';
   int offset = 1;
   for (int i = 0; i < NUM_STRIPS; i++) {
-    //if (i == whiteLine) {
+    if (i == whiteLine) {
       data[offset++] = (byte)(255 & 0xFF);
       data[offset++] = (byte)(255 & 0xFF);
       data[offset++] = (byte)(255 & 0xFF);
-    //} else {
-    //  data[offset++] = (byte)(0 & 0xFF);
-    //  data[offset++] = (byte)(0 & 0xFF);
-    //  data[offset++] = (byte)(0 & 0xFF);
-    //}
+    } else {
+      data[offset++] = (byte)(0 & 0xFF);
+      data[offset++] = (byte)(0 & 0xFF);
+      data[offset++] = (byte)(0 & 0xFF);
+    }
   }
   port.write(data);
-  println(bytesToHex(data));
+  println("Sent data: " + bytesToHex(data));
   
-  delay(100);
-  String response = port.readStringUntil('\n');
-  println(response);
+  //delay(500);
+  //String response = port.readStringUntil('\n');
+  //if (response == null) {
+  //  println("Error: Teensy is not responding.");
+  //} else {
+  //  println(response);
+  //}
 
   if (whiteLine < 8) {
     whiteLine++;

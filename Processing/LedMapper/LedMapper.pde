@@ -20,14 +20,13 @@ void setup() {
   size(512, 424, P3D);
   canvas = createGraphics(512, 424, P3D);
   setupTeensy();
-  setupStrip();
   //syphonServer = new SyphonServer(this, "Body Movement Simulation");
   //frameRate(15);
 }
 
 void draw() {
   canvas.beginDraw();
-  canvas.background(0);
+  canvas.background(169, 169, 169);
   drawStrips();
   drawCursor();
   canvas.endDraw();
@@ -38,34 +37,6 @@ void draw() {
   for (Teensy teensy : teensys) {
     teensy.send(display);
   }
-  
-  ////strips.get(0).updateStrip(get());
-  //PImage display = get();
-  //ByteArrayOutputStream out = new ByteArrayOutputStream();
-  //DataOutputStream dataOut = new DataOutputStream(out);
-  //try {
-  //  dataOut.write('*');
-  //} catch (Exception e) {
-  //  e.printStackTrace();
-  //}
-  //for (LedStrip strip : strips) {
-  //  color c = strip.updateStrip(display);
-  //  int brightness = c & 0xFF;
-  //  int r = c >> 16 & 0xFF;
-  //  int g = c >> 8 & 0xFF;
-  //  int b = c & 0xFF;
-  //  try {
-  //    dataOut.write(strip.id);
-  //    dataOut.write(brightness);
-  //    dataOut.write(r);
-  //    dataOut.write(g);
-  //    dataOut.write(b);
-  //  } catch (Exception e) {
-  //    e.printStackTrace();
-  //  }
-  //}
-  //printArray(out.toByteArray());
-  //noLoop();
 }
 
 void drawCursor() {
@@ -76,7 +47,7 @@ void drawCursor() {
   float gradient = 2;
   float tempWidth = abs(x1 - x2) > 20 ? abs(x1 - x2) : 20;
   for (int i = 0; i < tempWidth; i++) {
-    stroke(255 - gradient * i, 255 - gradient * i, 255 - gradient * i);
+    stroke(255 - gradient * i, 0, 0);
     if (x1 > x2) {
       line(x1 - i, 0, x1 - i, 424);
     } else {
