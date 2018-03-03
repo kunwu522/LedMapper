@@ -35,6 +35,7 @@ class SendDataThread extends Thread {
   void run() {
     while (running) {
       if (sendData) {
+        //println(name + " send data: " + bytesToHex(data));
         int stime = millis();
         sendData = false;
         port.write(data);  // send data over serial to teensy

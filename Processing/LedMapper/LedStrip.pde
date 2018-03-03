@@ -3,6 +3,12 @@ static float LED_WIDTH = 10;
 
 int totalStripsNum = 0;
 
+void setupStrips() {
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    
+  }
+}
+
 void drawStrips() {
   for (Teensy teensy : teensys) {
     for (LedStrip strip : teensy.ledStrips) {

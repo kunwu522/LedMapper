@@ -1,10 +1,10 @@
 #include "FastLED.h"
 
-#define TEENSY_ID "0"
-#define TEENSY_NAME "teensy0"
+#define TEENSY_ID "2"
+#define TEENSY_NAME "teensy2"
 
-#define NUM_LEDS  16
-#define NUM_STRIPS  8
+#define NUM_LEDS  620
+#define NUM_STRIPS 2
 
 //#define DEBUG_MODE
 
@@ -26,12 +26,12 @@ void setup() {
   
   FastLED.addLeds<WS2812B, 0, RGB>(leds[0], NUM_LEDS);
   FastLED.addLeds<WS2812B, 1, RGB>(leds[1], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 2, RGB>(leds[2], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 3, RGB>(leds[3], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 4, RGB>(leds[4], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 5, RGB>(leds[5], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 6, RGB>(leds[6], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 7, RGB>(leds[7], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 2, RGB>(leds[2], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 3, RGB>(leds[3], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 4, RGB>(leds[4], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 5, RGB>(leds[5], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 6, RGB>(leds[6], NUM_LEDS);
+//  FastLED.addLeds<WS2812B, 7, RGB>(leds[7], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 8, RGB>(leds[8], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 9, RGB>(leds[9], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 10, RGB>(leds[10], NUM_LEDS);
@@ -74,10 +74,12 @@ void showLeds(char data[]) {
   for (int i = 0; i < NUM_STRIPS; i++) {
     CRGB color = CRGB(dataPtr[0], dataPtr[1], dataPtr[2]);
     fill_solid(leds[i], NUM_LEDS, color);
+//    leds[i][9] = color;
     dataPtr += 3;
+    FastLED[i].showLeds(128);
   }
-  FastLED.setBrightness(128);
-  FastLED.show();
+//  FastLED.setBrightness(128);
+//  FastLED.show();
 }
 
 void processQueue() {
