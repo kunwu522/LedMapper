@@ -1,12 +1,12 @@
 #include "FastLED.h"
 
-#define TEENSY_ID "0"
-#define TEENSY_NAME "teensy0"
+#define TEENSY_ID "1"
+#define TEENSY_NAME "teensy1"
 
 #define NUM_LEDS  620
-#define NUM_STRIPS 2
+#define NUM_STRIPS 5
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
@@ -24,11 +24,11 @@ State state = State_Init;
 void setup() {
   Serial.setTimeout(50);
   
-  FastLED.addLeds<WS2812B, 0, RGB>(leds[0], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 1, RGB>(leds[1], NUM_LEDS);
-//  FastLED.addLeds<WS2812B, 2, RGB>(leds[2], NUM_LEDS);
-//  FastLED.addLeds<WS2812B, 3, RGB>(leds[3], NUM_LEDS);
-//  FastLED.addLeds<WS2812B, 4, RGB>(leds[4], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 2, RGB>(leds[0], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 3, RGB>(leds[1], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 4, RGB>(leds[2], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 5, RGB>(leds[3], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 6, RGB>(leds[4], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 5, RGB>(leds[5], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 6, RGB>(leds[6], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 7, RGB>(leds[7], NUM_LEDS);
@@ -47,10 +47,10 @@ void setup() {
 //  FastLED.addLeds<WS2812B, 20, RGB>(leds[20], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 21, RGB>(leds[21], NUM_LEDS);
 
-//  for (int i = 0; i < NUM_STRIPS; i++) {
-//    fill_solid(leds[i], NUM_LEDS, CRGB::Black);
-//  }
-//  FastLED.show();
+  for (int i = 0; i < NUM_STRIPS; i++) {
+    fill_solid(leds[i], NUM_LEDS, CRGB::Black);
+  }
+  FastLED.show();
 }
 
 void loop() {  
@@ -87,8 +87,10 @@ void showLeds(char data[]) {
     CRGB color = CRGB(dataPtr[0], dataPtr[1], dataPtr[2]);
     fill_solid(leds[i], NUM_LEDS, color);
     dataPtr += 3;
-    FastLED[i].showLeds(128);
+//    FastLED[i].showLeds(128);
   }
+  FastLED.setBrightness(128);
+  FastLED.show();
 }
 
 void processQueue() {
@@ -97,7 +99,7 @@ void processQueue() {
   }
   
   char data[NUM_STRIPS * 3];
-  while (bunchDequeue(data, sizeof(data))) {
+  if (bunchDequeue(data, sizeof(data))) {
     #ifdef DEBUG_MODE
       for (int i = 0; i < (int)sizeof(data); i++) {
         Serial.print(data[i], HEX);

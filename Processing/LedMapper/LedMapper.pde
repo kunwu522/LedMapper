@@ -4,9 +4,9 @@ import java.io.*;
 //SyphonServer syphonServer;
 //Serial port;
 
-static int SCREEN_WIDTH = 300;
+static int SCREEN_WIDTH = 500;
 static int SCREEN_HEIGHT = 424;
-final int NUM_STRIPS = 4;
+final int NUM_STRIPS = 10;
 final int NUM_LEDS_PER_STRIP = 620;
 
 float x1;
@@ -15,7 +15,7 @@ float x2;
 PGraphics canvas;
 
 void setup() {
-  size(300, 424, P3D);
+  size(512, 424, P3D);
   canvas = createGraphics(SCREEN_WIDTH, 424, P3D);
   setupStrips();
   setupTeensy();
