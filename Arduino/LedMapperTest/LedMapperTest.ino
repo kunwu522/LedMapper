@@ -1,12 +1,12 @@
 #include "FastLED.h"
 
-#define TEENSY_ID "2"
-#define TEENSY_NAME "teensy2"
+#define TEENSY_ID "0"
+#define TEENSY_NAME "teensy0"
 
 #define NUM_LEDS  620
 #define NUM_STRIPS 2
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 CRGB leds[NUM_STRIPS][NUM_LEDS];
 
@@ -47,10 +47,10 @@ void setup() {
 //  FastLED.addLeds<WS2812B, 20, RGB>(leds[20], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 21, RGB>(leds[21], NUM_LEDS);
 
-  for (int i = 0; i < NUM_STRIPS; i++) {
-    fill_solid(leds[i], NUM_LEDS, CRGB::Black);
-  }
-  FastLED.show();
+//  for (int i = 0; i < NUM_STRIPS; i++) {
+//    fill_solid(leds[i], NUM_LEDS, CRGB::Black);
+//  }
+//  FastLED.show();
 }
 
 void loop() {  
@@ -58,15 +58,27 @@ void loop() {
     enqueue(Serial.read());
   }
 
-  if (state == State_Init) {
-    char startByte;
-    if (dequeue(&startByte)) {
+  char startByte;
+  if (dequeue(&startByte)) {
+    if (startByte == '?') {
       sendTeensyInfo();
-      state = State_ReadingFrame;
+    } else if (startByte == '*') {
+      processQueue();
+    } else {
+      Serial.print("Invalid start byte");
+      Serial.print('\n');
     }
-  } else if (state == State_ReadingFrame) {
-    processQueue();
   }
+
+//  if (state == State_Init) {
+//    char startByte;
+//    if (dequeue(&startByte)) {
+//      sendTeensyInfo();
+//      state = State_ReadingFrame;
+//    }
+//  } else if (state == State_ReadingFrame) {
+//    processQueue();
+//  }
 }
 
 void showLeds(char data[]) {
@@ -74,32 +86,50 @@ void showLeds(char data[]) {
   for (int i = 0; i < NUM_STRIPS; i++) {
     CRGB color = CRGB(dataPtr[0], dataPtr[1], dataPtr[2]);
     fill_solid(leds[i], NUM_LEDS, color);
-//    leds[i][9] = color;
     dataPtr += 3;
     FastLED[i].showLeds(128);
   }
-//  FastLED.setBrightness(128);
-//  FastLED.show();
 }
 
 void processQueue() {
-  if (queueSize() < NUM_STRIPS * 3 + 1) {
+  if (queueSize() < NUM_STRIPS * 3) {
     return;
   }
-  char startByte;
-  while (dequeue(&startByte) && startByte == '*') {
-    char data[NUM_STRIPS * 3];
-    if (bunchDequeue(data, NUM_STRIPS * 3)) {
+  
+  char data[NUM_STRIPS * 3];
+  while (bunchDequeue(data, sizeof(data))) {
+    #ifdef DEBUG_MODE
+      for (int i = 0; i < (int)sizeof(data); i++) {
+        Serial.print(data[i], HEX);
+      }
+    #else
       showLeds(data);
-    } else {
-      #ifdef DEBUG_MODE
-        Serial.print("Error, bunch dequeue failed.");
-      #endif
-    }
+    #endif
   }
+
   #ifdef DEBUG_MODE
     Serial.print('\n');
   #endif
+  
+//  while (dequeue(&startByte) && startByte == '*') {
+//    char data[NUM_STRIPS * 3];
+//    if (bunchDequeue(data, NUM_STRIPS * 3)) {
+//      #ifdef DEBUG_MODE
+//        for (int i = 0; i < (int)sizeof(data); i++) {
+//          Serial.print(data[i], HEX);
+//        }
+//      #else
+//        showLeds(data);
+//      #endif
+//    } else {
+//      #ifdef DEBUG_MODE
+//        Serial.print("Error, bunch dequeue failed.");
+//      #endif
+//    }
+//  }
+//  #ifdef DEBUG_MODE
+//    Serial.print('\n');
+//  #endif
 }
 
 void sendTeensyInfo() {
@@ -154,7 +184,7 @@ int queueSize() {
   return rear - front + 1;
 }
 
-boolean bunchDequeue(char *ptr, int size) {
+boolean bunchDequeue(char *ptr, unsigned int size) {
   if (rear - front + 1 >= size) {
     if (memcpy(ptr, &dataQueue[front], size)) {
       front += size;
@@ -171,8 +201,3 @@ boolean bunchDequeue(char *ptr, int size) {
   }
   return 0;
 }
-
-
-
-
-
