@@ -4,7 +4,7 @@ final int TEENSY_NUM_STRIPS = 2;
 final int TEENSY_NUM_LEDS = 620;
 final int BAUD_RATE = 921600;
 
-Teensy[] teensys = new Teensy[3];
+Teensy[] teensys = new Teensy[2];
 
 void setupTeensy() {
   println("Start to setup teensy...");
@@ -13,10 +13,10 @@ void setupTeensy() {
   println("Serial Ports List:");
   printArray(list);
   
-  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem3071001");
-  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3654571");
-  teensys[1] = new Teensy(this, "/dev/cu.usbmodem2885451");
-  teensys[2] = new Teensy(this, "/dev/cu.usbmodem3162511");
+  teensys[1] = new Teensy(this, "/dev/cu.usbmodem3071001");
+  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem3654571");
+  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3162511");
+  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem2885451");
   
   println("Teensy setup done!");
   println();
@@ -27,8 +27,8 @@ class Teensy {
   String name;
   Serial port;
   String portName;
-  LedStrip[] ledStrips = new LedStrip[TEENSY_NUM_STRIPS / teensys.length];
-  byte[] data = new byte[(TEENSY_NUM_STRIPS / teensys.length) * 3 + 1];
+  LedStrip[] ledStrips = new LedStrip[TEENSY_NUM_STRIPS];
+  byte[] data = new byte[TEENSY_NUM_STRIPS * 3 + 1];
   
   SendDataThread sendThread;
   RecieveDataThread recieveThread;
@@ -42,6 +42,7 @@ class Teensy {
         println("Error, port is null.");
         throw new NullPointerException();
       }
+      port.bufferUntil('\n');
       port.write('?');
     } catch (Throwable e) {
       println("Serial Port " + portName + " does not exist.");
@@ -67,43 +68,48 @@ class Teensy {
     name = param[1];
     int stripsNum = Integer.parseInt(param[2]);
     int ledsNum = Integer.parseInt(param[3].trim());
-    if (stripsNum != TEENSY_NUM_STRIPS / teensys.length || ledsNum != TEENSY_NUM_LEDS) {
+    if (stripsNum != TEENSY_NUM_STRIPS || ledsNum != TEENSY_NUM_LEDS) {
       println("Error -- teensy: " + name + ", the number of leds and strips is not match.");
       exit();
       return;
     }
     
-    int interval = floor(SCREEN_WIDTH / (TEENSY_NUM_STRIPS + 1));
     for (int i = 0; i < ledStrips.length; i++) {
-      if (id == 0) {
-        ledStrips[i] = new LedStrip(i, ledsNum, interval + interval * i);
-      } else if (id == 1) {
-        ledStrips[i] = new LedStrip(i, ledsNum, interval + interval * (i + 2));
-      } else {
-        ledStrips[i] = new LedStrip(i, ledsNum, interval + interval * (i + 4));
-      }
+      ledStrips[i] = strips[i + id * 2];
     }
     
     sendThread = new SendDataThread(name + "_send_thread", port);
     sendThread.start();
     
     recieveThread = new RecieveDataThread(name + "_recieve_thread", port);
-    recieveThread.start();
+    //recieveThread.start();
     
     println(name + " setup.");
     println();
   }
   
+  PImage lastImage;
+  boolean isSame = true;
   void send(PImage image) {
     update(image);
     data[0] = '*';
-    sendThread.send(data);
+    if (!isSame) {
+      sendThread.send(data);
+    }
+    isSame = true;
+    lastImage = image;
   }
   
   void update(PImage image) {
     int offset = 1;
     for (LedStrip strip : ledStrips) {
       color c = image.pixels[strip.offset];
+      if (lastImage != null) {
+        color lastC = lastImage.pixels[strip.offset];
+        if (lastC != c) {
+          isSame = false;
+        }
+      }
       data[offset++] = (byte)(c >> 16 & 0xFF);
       data[offset++] = (byte)(c >> 8 & 0xFF);
       data[offset++] = (byte)(c & 0xFF);

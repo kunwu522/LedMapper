@@ -1,13 +1,16 @@
 import processing.serial.*;
 
-final int NUM_STRIPS = 8;
+final int NUM_STRIPS = 4;
 final int NUM_LEDS = 16;
 
-final String portName = "/dev/tty.usbmodem3071001"; 
+final String portName1 = "/dev/cu.usbmodem3162511"; 
+final String portName2 = "/dev/cu.usbmodem3071001";
 
-Serial port;
-RecieveSerialThread thread;
-
+Serial[] ports = new Serial[2];
+//Serial port1;
+//Serial port2;
+RecieveSerialThread thread1;
+RecieveSerialThread thread2;
 
 void setup() {
   size(400, 200);
@@ -18,15 +21,25 @@ void setup() {
   printArray(list);
   println();
   
-  port = new Serial(this, portName, 921600);
-  if (port == null) {
-    println("Error, Serial port " + portName + " does not exist.");
+  ports[0] = new Serial(this, portName1, 921600);
+  if (ports[0] == null) {
+    println("Error, Serial port " + portName1 + " does not exist.");
     exit();
     return;
   }
   
-  thread = new RecieveSerialThread(port);
-  thread.start();
+  ports[1] = new Serial(this, portName2, 921600);
+  if (ports[1] == null) {
+    println("Error, Serial port " + portName2 + " does not exist.");
+    exit();
+    return;
+  }
+  
+  thread1 = new RecieveSerialThread(ports[0], portName1);
+  thread1.start();
+  
+  thread2 = new RecieveSerialThread(ports[1], portName2);
+  thread2.start();
 }
 
 void draw() {
@@ -35,30 +48,21 @@ void draw() {
 
 int whiteLine = 0;
 void mousePressed() {
-  byte[] data = new byte[NUM_STRIPS * 3 + 1];
-  data[0] = '*';
-  int offset = 1;
-  for (int i = 0; i < NUM_STRIPS; i++) {
-    if (i == whiteLine) {
-      data[offset++] = (byte)(255 & 0xFF);
-      data[offset++] = (byte)(255 & 0xFF);
-      data[offset++] = (byte)(255 & 0xFF);
-    } else {
-      data[offset++] = (byte)(0 & 0xFF);
-      data[offset++] = (byte)(0 & 0xFF);
-      data[offset++] = (byte)(0 & 0xFF);
+  byte[] data = new byte[NUM_STRIPS * 3 / 2 + 1];
+  for (int strip = 0; strip < 2; strip++) {
+    data[0] = '*';
+    int offset = 1;
+    for(int i = 0; i < 2; i++) {
+      int r = (int)random(255);
+      int g = (int)random(255);
+      int b = (int)random(255);
+      data[offset++] = (byte)(r & 0xFF);
+      data[offset++] = (byte)(g & 0xFF);
+      data[offset++] = (byte)(b & 0xFF);
     }
+    ports[strip].write(data);
+    println("Sent data: " + bytesToHex(data));
   }
-  port.write(data);
-  println("Sent data: " + bytesToHex(data));
-  
-  //delay(500);
-  //String response = port.readStringUntil('\n');
-  //if (response == null) {
-  //  println("Error: Teensy is not responding.");
-  //} else {
-  //  println(response);
-  //}
 
   if (whiteLine < 8) {
     whiteLine++;
