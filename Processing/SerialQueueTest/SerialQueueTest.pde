@@ -1,73 +1,76 @@
 import processing.serial.*;
 
-final int NUM_STRIPS = 4;
-final int NUM_LEDS = 16;
+final int NUM_STRIPS = 10;
+final int NUM_LEDS = 620;
 
-final String portName1 = "/dev/cu.usbmodem3162511"; 
-final String portName2 = "/dev/cu.usbmodem3071001";
+final int TUNNEL_WIDTH = 512;
+final int TUNNEL_HEIGHT = 620;
 
-Serial[] ports = new Serial[2];
-//Serial port1;
-//Serial port2;
+final boolean LAUNCH_TEENSY = true;
+
 RecieveSerialThread thread1;
 RecieveSerialThread thread2;
 
+
+
 void setup() {
-  size(400, 200);
-  
-  String[] list = Serial.list();
-  delay(50);
-  println("Serial Ports List:");
-  printArray(list);
-  println();
-  
-  ports[0] = new Serial(this, portName1, 921600);
-  if (ports[0] == null) {
-    println("Error, Serial port " + portName1 + " does not exist.");
-    exit();
-    return;
-  }
-  
-  ports[1] = new Serial(this, portName2, 921600);
-  if (ports[1] == null) {
-    println("Error, Serial port " + portName2 + " does not exist.");
-    exit();
-    return;
-  }
-  
-  thread1 = new RecieveSerialThread(ports[0], portName1);
-  thread1.start();
-  
-  thread2 = new RecieveSerialThread(ports[1], portName2);
-  thread2.start();
+  size(512, 620);
+  setupStrips();
+  if (LAUNCH_TEENSY) setupTeensys();
+  //frameRate(30);
 }
 
 void draw() {
-  background(0);
+  background(169, 169, 169);
+  drawStripsWithMouse();
+  // drawStrips();
+  // drawLine();
+  if (LAUNCH_TEENSY) {
+    PImage image = get();
+    for (Teensy teensy : teensys) {
+      teensy.sendCurrentColor(image);
+    }
+  }
+  // delay(1000);
 }
 
-int whiteLine = 0;
-void mousePressed() {
-  byte[] data = new byte[NUM_STRIPS * 3 / 2 + 1];
-  for (int strip = 0; strip < 2; strip++) {
+/* int litStrip = 0;
+int litDirection = 0;
+void forthAndBack() {
+  for (int port = 0; port < ports.length; port++) {
+    byte[] data = new byte[(NUM_STRIPS / 2) *  NUM_LEDS * 3 + 1];
     data[0] = '*';
     int offset = 1;
-    for(int i = 0; i < 2; i++) {
-      int r = (int)random(255);
-      int g = (int)random(255);
-      int b = (int)random(255);
-      data[offset++] = (byte)(r & 0xFF);
-      data[offset++] = (byte)(g & 0xFF);
-      data[offset++] = (byte)(b & 0xFF);
+    for (int strip = 0; strip < NUM_STRIPS / 2; strip++) {
+      int c = 0;
+      if (litStrip == strip) {
+        c = 255;
+      }
+      for(int i = 0; i < NUM_LEDS; i++) {
+        data[offset++] = (byte)(c & 0xFF);
+        data[offset++] = (byte)(c & 0xFF);
+        data[offset++] = (byte)(c & 0xFF);
+      }
     }
-    ports[strip].write(data);
-    println("Sent data: " + bytesToHex(data));
+    //println(millis() + ", Sent data: " + bytesToHex(data));
+    ports[port].write(data);
   }
 
-  if (whiteLine < 8) {
-    whiteLine++;
+  if (litDirection == 0) {
+    litStrip++;
   } else {
-    whiteLine = 0;
+    litStrip--;
+  }
+  if (litStrip == NUM_STRIPS) {
+    litDirection = 1;
+  } else if (litStrip == -1) {
+    litDirection = 0;
+  }
+} */
+
+void mousePressed() {
+  for (Teensy teensy : teensys) {
+    teensy.colorfulStrips();
   }
 }
 

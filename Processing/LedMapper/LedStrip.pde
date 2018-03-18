@@ -41,47 +41,4 @@ class LedStrip {
     canvas.strokeWeight(2);
     canvas.line(offset, 0, offset, SCREEN_HEIGHT);
   }
-  
-  private boolean isEqualColorWithThreshold(color c1, color c2) {
-    int r1 = c1 >> 16 & 0xFF;
-    int g1 = c1 >> 8 & 0xFF;
-    int b1 = c1 & 0xFF;
-    int r2 = c2 >> 16 & 0xFF;
-    int g2 = c2 >> 8 & 0xFF;
-    int b2 = c2 & 0xFF;
-    
-    if (r1 != g1 || r1 != b1 || b1 != g1) {
-      println("Error, invalid color: " + r1 + "-" + g1 + "-" + b1);
-      return true;
-    }
-    
-    if (r2 != g2 || r2 != b2 || g2 != b2) {
-      println("Error, invalid color: " + r2 + "-" + g2 + "-" + b2);
-      return true;
-    }
-    
-    if (abs(r2 - r1) > 30) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-  
-  
-  private int compareColors(color c1, color c2) {
-    int r1 = c1 >> 16 & 0xFF;
-    int g1 = c1 >> 8 & 0xFF;
-    int b1 = c1 & 0xFF;
-    int r2 = c2 >> 16 & 0xFF;
-    int g2 = c2 >> 8 & 0xFF;
-    int b2 = c2 & 0xFF;
-    
-    if (r1 == r2 && g1 == g2 && b1 == b2) {
-      return 0;
-    } else if (r1 > r2 || g1 > g2 || b1 > b2) {
-      return 1;
-    } else {
-      return -1;
-    }
-  }
 }

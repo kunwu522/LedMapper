@@ -23,7 +23,7 @@ class RecieveSerialThread extends Thread {
       if (port.available() > 0) {
         String response = port.readStringUntil('\n');
         if (response != null) {
-          println(name + " responses: " + response);
+          println(millis() + name + " responses: " + response);
         }
       }
       delay(100);

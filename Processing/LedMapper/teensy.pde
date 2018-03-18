@@ -13,10 +13,10 @@ void setupTeensy() {
   println("Serial Ports List:");
   printArray(list);
   
-  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3071001");
+  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem3071001");
   //teensys[0] = new Teensy(this, "/dev/cu.usbmodem3654571");
-  teensys[1] = new Teensy(this, "/dev/cu.usbmodem3162511");
-  //teensys[0] = new Teensy(this, "/dev/cu.usbmodem2885451");
+  teensys[0] = new Teensy(this, "/dev/cu.usbmodem3162511");
+  teensys[1] = new Teensy(this, "/dev/cu.usbmodem2885451");
   
   println("Teensy setup done!");
   println();
@@ -58,16 +58,16 @@ class Teensy {
       return;
     }
     String param[] = line.split(",");
-    if (param.length != 4) {
+    if (param.length != 3) {
       println("Error, port " + portName + " invalid reponse: " + line);
       exit();
       return;
     }
     println("Response: " + line);
     id = Integer.parseInt(param[0]);
-    name = param[1];
-    int stripsNum = Integer.parseInt(param[2]);
-    int ledsNum = Integer.parseInt(param[3].trim());
+    name = "teensy" + id;
+    int stripsNum = Integer.parseInt(param[1]);
+    int ledsNum = Integer.parseInt(param[2].trim());
     if (stripsNum != TEENSY_NUM_STRIPS || ledsNum != TEENSY_NUM_LEDS) {
       println("Error -- teensy: " + name + ", the number of leds and strips is not match.");
       exit();

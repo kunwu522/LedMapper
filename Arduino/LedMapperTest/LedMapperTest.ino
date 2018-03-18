@@ -1,7 +1,7 @@
 #include "FastLED.h"
 
 #define TEENSY_ID "1"
-#define TEENSY_NAME "teensy1"
+//#define TEENSY_NAME "teensy1"
 
 #define NUM_LEDS  620
 #define NUM_STRIPS 5
@@ -24,11 +24,11 @@ State state = State_Init;
 void setup() {
   Serial.setTimeout(50);
   
-  FastLED.addLeds<WS2812B, 2, RGB>(leds[0], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 3, RGB>(leds[1], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 6, RGB>(leds[0], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 5, RGB>(leds[1], NUM_LEDS);
   FastLED.addLeds<WS2812B, 4, RGB>(leds[2], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 5, RGB>(leds[3], NUM_LEDS);
-  FastLED.addLeds<WS2812B, 6, RGB>(leds[4], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 3, RGB>(leds[3], NUM_LEDS);
+  FastLED.addLeds<WS2812B, 2, RGB>(leds[4], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 5, RGB>(leds[5], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 6, RGB>(leds[6], NUM_LEDS);
 //  FastLED.addLeds<WS2812B, 7, RGB>(leds[7], NUM_LEDS);
@@ -137,8 +137,8 @@ void processQueue() {
 void sendTeensyInfo() {
   Serial.print(TEENSY_ID);
   Serial.write(',');
-  Serial.print(TEENSY_NAME);
-  Serial.write(',');
+//  Serial.print(TEENSY_NAME);
+//  Serial.write(',');
   Serial.print(NUM_STRIPS);
   Serial.write(',');
   Serial.print(NUM_LEDS);
