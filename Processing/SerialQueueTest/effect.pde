@@ -1,6 +1,9 @@
 int x1;
 int x2;
 
+int objectX = 0;
+int objectY = 0;
+
 void drawGradient() {
   int x = mouseX;
   x1 = (int)lerp(x1, x, 0.05); //<>//

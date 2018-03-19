@@ -7,31 +7,33 @@ final int TUNNEL_WIDTH = 512;
 final int TUNNEL_HEIGHT = 620;
 
 final boolean LAUNCH_TEENSY = true;
+final boolean LAUNCH_KINECT = false;
 
 RecieveSerialThread thread1;
 RecieveSerialThread thread2;
 
-
-
 void setup() {
   size(512, 620);
   setupStrips();
+  // setupKinectSimulator();
+  if (LAUNCH_KINECT) setupKinect();
   if (LAUNCH_TEENSY) setupTeensys();
   //frameRate(30);
 }
 
 void draw() {
   background(169, 169, 169);
-  drawStripsWithMouse();
-  // drawStrips();
-  // drawLine();
+  if (LAUNCH_KINECT) drawKinect();
+  // drawStripsWithPos(objectX, objectY);
+  //drawBreathLine();
+  drawRoof();
   if (LAUNCH_TEENSY) {
     PImage image = get();
     for (Teensy teensy : teensys) {
       teensy.sendCurrentColor(image);
     }
   }
-  // delay(1000);
+  //image(kinect2.getDepthImage(), 512, 0);
 }
 
 /* int litStrip = 0;
@@ -68,11 +70,11 @@ void forthAndBack() {
   }
 } */
 
-void mousePressed() {
-  for (Teensy teensy : teensys) {
-    teensy.colorfulStrips();
-  }
-}
+//void mousePressed() {
+//  for (Teensy teensy : teensys) {
+//    teensy.colorfulStrips();
+//  }
+//}
 
 final  char[] hexArray = "0123456789ABCDEF".toCharArray();
 public String bytesToHex(byte[] bytes) {
@@ -83,4 +85,26 @@ public String bytesToHex(byte[] bytes) {
       hexChars[j * 2 + 1] = hexArray[v & 0x0F];
   }
   return new String(hexChars);
+}
+
+boolean cmdPressed = false;
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == 157) cmdPressed = true;
+  } else {
+    if (cmdPressed && key == 'b') {
+      saveBackground = true;
+    } else if (cmdPressed && key == 's') {
+      //smoothImage.save("image/smooth" + millis() + ".jpg");
+    } else if (cmdPressed && key == 'p') {
+      //writeToFile();
+    } else if (cmdPressed && key == 'e') {
+      //printDepth = true;
+    }
+  }
+}
+
+void saveBackgounndImage() {
+  background = get(512, 0, 512, 424);
+  background.save("image/background.jpg");
 }
